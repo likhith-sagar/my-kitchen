@@ -1,0 +1,33 @@
+- Inconsistencies accessing sub-managers (somewhere passed as props, somewhere read directly from gameManager global object)
+
+- Fix select - no-pan issue.
+
+- Think of moving the drag/drop handlers to DropManager (P1) (create DragDropService instead, which isn't owned by gameManager)
+    - Not doing it currently, because this introduces additional work/planning/approach of recreating/updating 
+    worklets (to update selectedShape and cell) everytime any dependencies (occupancyMatrix, blockSize, boardAnimatedRef) changes.
+    Currently, the worklets are created within component, and hence they're automatically recreated everytime any dependencies change.
+    To avoid complexities initially, let's go ahead the way it is. Later this needs to be revamped wrt better architecture.
+
+- Fix types for useUIBinder. Conclude changes wrt comparator-optimisations.
+
+- Introduce/accomotate/think about gameState, so things certain things can be controlled based on it.
+
+- Revamp BlockSet/Draggable components such that it can be enabled/disabled depending on gameState.
+
+- Remove unwanted properties from entity data (ex: color)
+
+- Make notifyChange() async by using setTimeout/setImmediate, so let's say if multiple nofityChange() gets called in 
+a synchronous block, only one final change gets triggered (P1)(see the impact/consequences)
+
+- Make Managers/Entities have a UIBinder instead of extending to it:
+    - new UIBinder() will be passed into Managers/Entities during instantiation
+    - uiBinder.setLatestData() -uiBinder.setLatestDataAndNotify() etc
+    - But infering types might get complicated (by infering, I mean return type of useBinder(...) should get auto detected 
+    based on the instance passed in)
+    
+- Instead of all blocks having a same border color, add a separate border colors according to their colors
+
+- Instead of marking only the overlaping cell as red, mark the whole preview as red
+
+- Add AbilityManager (manager) and Ability (base entity). With abilities like:- ColorClearAbility, UndoAbility etc
+    - Check if it requires us to introduce a new folder, or works with manager-entity-ui architecture.
