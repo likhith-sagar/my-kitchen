@@ -1,5 +1,5 @@
 import {SharedValue} from 'react-native-reanimated';
-import {BlockType} from './constants';
+import {BlockType, StatsUpdateType} from './constants';
 
 // TODO: follow the convention of types/interfaces to start with I
 
@@ -66,4 +66,9 @@ export type IContextForUpdateAbilities = {
   blocksDestroyedTillNow: {
     [key in BlockType]: number;
   };
+};
+
+export type IContextForStatsUpdate = {
+  updateType: StatsUpdateType;
+  // TODO
 };

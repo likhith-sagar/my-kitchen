@@ -29,5 +29,11 @@ a synchronous block, only one final change gets triggered (P1)(see the impact/co
 
 - Instead of marking only the overlaping cell as red, mark the whole preview as red
 
-- Add AbilityManager (manager) and Ability (base entity). With abilities like:- ColorClearAbility, UndoAbility etc
-    - Check if it requires us to introduce a new folder, or works with manager-entity-ui architecture.
+- Add StatsManager (holds stats data that even powers the activation of abilities) move score into it.
+Later also evolute it to show msgs ("All clear!", "3 in a row!", "4 in a row!" etc) when needed
+(curate the idea, check if to hand it over to a new Manager class)
+
+- make processDrop, processRemoveBlocks, etc (gameboard processing methods) as async methods (this allows
+them to handle their own delays in much easier way and produce a final result, lets say a score update, after
+everything is done).
+
