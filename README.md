@@ -22,7 +22,7 @@ https://github.com/user-attachments/assets/558e775d-39ce-4ffd-875d-05a652d8913a
   ```
 
 <p>
-  <a href="./builds/app-release.apk" style="display:inline-block;padding:10px 20px;background:#1976d2;color:#fff;font-weight:bold;border-radius:6px;text-decoration:none;">⬇️ Download Latest APK</a>
+  <a href="./builds/app-release.apk">⬇️ Download Latest APK</a>
 </p>
 
 ## iOS
