@@ -25,7 +25,7 @@ export const BlockSetPool: React.FC<BlockSetPoolProps> = ({
 
 const styles = StyleSheet.create({
   container: {
-    padding: 16,
+    padding: normalize(16),
     backgroundColor: '#ccc',
     borderRadius: normalize(10),
     flexDirection: 'row',
@@ -33,6 +33,6 @@ const styles = StyleSheet.create({
     minHeight: normalize(90),
     alignItems: 'center',
     justifyContent: 'space-evenly',
-    marginTop: normalize(40),
+    marginTop: normalize(32),
   },
 });
