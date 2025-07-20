@@ -1,5 +1,13 @@
 # My Kitchen
 
+---
+
+# Demo
+
+<p align="center">
+  <video src="./demo/blocksGame.mp4" controls></video>
+</p>
+
 Welcome to **my-kitchen**! This project is a creative space where I'll be cooking up multiple mini-projects ("dishes") just for fun. Here, you'll find a variety of small apps and experiments, some showcasing my learning of new technologies, others just for the joy of building something creative.
 
 Each "dish" is a mini-project with its own flavor, and you never know what magic might happen next. Stay tuned for new additions and explorations!
