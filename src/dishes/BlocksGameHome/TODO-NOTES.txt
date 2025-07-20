@@ -31,6 +31,8 @@ but will be easy to extend). Make gameManager import/usage consistent according 
 
 - UndoAbility to be done
 
+- Add haptics/vibration on blockset tap and hold
+
 
 
 ---- DONE ----
