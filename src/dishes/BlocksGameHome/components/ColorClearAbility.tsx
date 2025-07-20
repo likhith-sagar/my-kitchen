@@ -8,13 +8,9 @@ import {ASSETS_IMAGES} from '../../../assets';
 
 type IColorClearAbilityProps = {
   ability: ColorClearAbilityEntity;
-  abilityType: SpecialAbilityType;
 };
 
-const ColorClearAbility: React.FC<IColorClearAbilityProps> = ({
-  ability,
-  abilityType,
-}) => {
+const ColorClearAbility: React.FC<IColorClearAbilityProps> = ({ability}) => {
   const {blockType, progressCount, unlockThreshold, isUsable} =
     useUIBinder(ability);
 
@@ -45,18 +41,21 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     gap: normalize(2),
-    padding: normalize(4),
+    paddingVertical: normalize(4),
     backgroundColor: '#ffffff55',
     borderRadius: normalize(4),
     borderColor: '#00000055',
     borderWidth: 0.5,
   },
   iconImage: {
-    width: normalize(32),
-    height: normalize(32),
+    width: normalize(34),
+    height: normalize(34),
     borderRadius: normalize(4),
+    marginHorizontal: normalize(4),
   },
   text: {
-    fontSize: normalize(10),
+    fontSize: normalize(8),
+    fontWeight: '500',
+    color: '#444',
   },
 });

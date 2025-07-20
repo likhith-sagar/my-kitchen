@@ -26,3 +26,7 @@ let globalId = 0;
 export function getUniqueGlobalId() {
   return globalId++;
 }
+
+export async function delay(ms: number) {
+  return new Promise(resolve => setTimeout(resolve, ms));
+}

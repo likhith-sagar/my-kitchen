@@ -1,16 +1,15 @@
 import {normalize} from '../../../../utils';
-import {GameStateStep} from '../constants';
+import {GameStateStep, SpecialAbilityType} from '../constants';
 import {UIBinder} from '../base/UIBinder';
 import {BlockSet} from '../entities/BlockSet';
-import {GameConfig} from '../types';
 import {BlockSetManager} from './BlockSetManager';
 import {BoardManager} from './BoardManager';
 import {DropManager} from './DropManager';
 import {SpecialAbilityManager} from './SpecialAbilityManager';
+import {StatsManager} from './StatsManager';
 
 type IGameManagerData = {
   gameStateStep: GameStateStep; // TODO: check if this is needed
-  score: number;
 };
 
 const BOARD_BLOCK_SIZE = normalize(40);
@@ -21,18 +20,15 @@ export class GameManager extends UIBinder<IGameManagerData> {
   private blockSetManager: BlockSetManager;
   private dropManager: DropManager;
   private specialAbilityManager: SpecialAbilityManager;
-
-  private config: GameConfig;
+  private statsManager: StatsManager;
 
   private data: IGameManagerData;
 
-  constructor(config: GameConfig) {
+  constructor() {
     super();
     this.data = {
       gameStateStep: GameStateStep.NONE,
-      score: 0,
     };
-    this.config = config;
 
     this.boardManager = new BoardManager({
       blockSize: BOARD_BLOCK_SIZE,
@@ -47,6 +43,7 @@ export class GameManager extends UIBinder<IGameManagerData> {
 
     this.dropManager = new DropManager();
     this.specialAbilityManager = new SpecialAbilityManager();
+    this.statsManager = new StatsManager();
   }
 
   getData() {
@@ -69,44 +66,26 @@ export class GameManager extends UIBinder<IGameManagerData> {
     return this.specialAbilityManager;
   }
 
-  updateScore(score: number) {
-    this.data = {
-      ...this.data,
-      score: this.data.score + score,
-    };
-    this.notifyChange();
+  getStatsManager(): StatsManager {
+    return this.statsManager;
   }
 
-  processDrop(
+  async processDrop(
     blockSet: BlockSet,
     pivot: [number, number],
     dropCell: [number, number],
   ) {
-    {
-      /// step-1 - start
-      // update the board (matrix)
-      const {points} = this.boardManager.updateBoard(blockSet, pivot, dropCell);
-      // update the score
-      this.updateScore(points);
-      // update blockSet
-      this.blockSetManager.removeBlockSet(blockSet.getData().id);
-      this.blockSetManager.addNewBlockSet(1);
-      /// step-1 - end
-    }
+    await this.boardManager.processDrop(blockSet, pivot, dropCell);
+    this.specialAbilityManager.updateAbilities();
+    this.blockSetManager.removeBlockSet(blockSet.getData().id);
+    this.blockSetManager.addNewBlockSet();
+  }
 
-    // TODO: manage clear timeout
-    setTimeout(() => {
-      // TODO: remove (for testing)
-      /// step-2 - start
-      const {points} = this.boardManager.processRemoveBlocks();
-      this.updateScore(points);
-      /// step-2 - end
-    }, 500);
+  processAbility(ability: SpecialAbilityType) {
+    this.specialAbilityManager.processAbility(ability);
   }
 }
 
-const gameManager = new GameManager({
-  scorePerBlock: 100, // TODO: remove (unused mostly)
-});
+const gameManager = new GameManager();
 
 export default gameManager;

@@ -5,7 +5,7 @@ import gameManager from '../core/managers/GameManager';
 import {useUIBinder} from '../hooks/useUIBinder';
 
 const ScoreBox: React.FC = () => {
-  const {score} = useUIBinder(gameManager);
+  const {score} = useUIBinder(gameManager.getStatsManager());
 
   return (
     <View style={styles.container}>

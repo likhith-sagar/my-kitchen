@@ -1,9 +1,7 @@
-import {IContextForUpdateAbilities} from '../types';
-
 export abstract class SpecialAbility<T extends {isUsable: boolean}> {
   abstract data: T;
 
-  abstract activate(): void;
+  abstract process(): void;
 
-  abstract update(context: IContextForUpdateAbilities): void;
+  abstract update(): void;
 }
