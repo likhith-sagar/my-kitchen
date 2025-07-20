@@ -2,6 +2,7 @@ import {getUniqueGlobalId} from '../../../../utils';
 
 export abstract class UIBinder<T> {
   private listeners: {id: number; listener: (data: T) => void}[] = [];
+  private isNotifyPending: boolean = false;
 
   abstract getData(): T;
 
@@ -16,6 +17,12 @@ export abstract class UIBinder<T> {
   }
 
   protected notifyChange(): void {
-    this.listeners.forEach(listener => listener.listener(this.getData()));
+    if (this.isNotifyPending) return;
+    this.isNotifyPending = true;
+    // done this way to combine multiple calls to notifyChange in a synchronous block into single update
+    Promise.resolve().then(() => {
+      this.listeners.forEach(listener => listener.listener(this.getData()));
+      this.isNotifyPending = false;
+    });
   }
 }

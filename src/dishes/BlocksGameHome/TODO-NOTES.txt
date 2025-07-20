@@ -10,9 +10,6 @@
 
 - Remove unwanted properties from entity data (ex: color)
 
-- Make notifyChange() async by using setTimeout/setImmediate, so let's say if multiple nofityChange() gets called in 
-a synchronous block, only one final change gets triggered (P1)(see the impact/consequences)
-
 - Make Managers/Entities have a UIBinder instead of extending to it:
     - new UIBinder() will be passed into Managers/Entities during instantiation
     - uiBinder.setLatestData() -uiBinder.setLatestDataAndNotify() etc
@@ -52,3 +49,6 @@ everything is done).
     worklets (to update selectedShape and cell) everytime any dependencies (occupancyMatrix, blockSize, boardAnimatedRef) changes.
     Currently, the worklets are created within component, and hence they're automatically recreated everytime any dependencies change.
     To avoid complexities initially, let's go ahead the way it is. Later this needs to be revamped wrt better architecture.
+
+- Make notifyChange() async by using setTimeout/setImmediate (promise used), so let's say if multiple nofityChange() gets called in 
+a synchronous block, only one final change gets triggered (P1)(see the impact/consequences)
