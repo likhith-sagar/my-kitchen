@@ -2,15 +2,9 @@
 
 - Fix select - no-pan issue.
 
-- Think of moving the drag/drop handlers to DropManager (P1) (create DragDropService instead, which isn't owned by gameManager)
-    - Not doing it currently, because this introduces additional work/planning/approach of recreating/updating 
-    worklets (to update selectedShape and cell) everytime any dependencies (occupancyMatrix, blockSize, boardAnimatedRef) changes.
-    Currently, the worklets are created within component, and hence they're automatically recreated everytime any dependencies change.
-    To avoid complexities initially, let's go ahead the way it is. Later this needs to be revamped wrt better architecture.
-
 - Fix types for useUIBinder. Conclude changes wrt comparator-optimisations.
 
-- Introduce/accomotate/think about gameState, so things certain things can be controlled based on it.
+- Introduce/accomotate/think about gameState, so certain things can be controlled based on it.
 
 - Revamp BlockSet/Draggable components such that it can be enabled/disabled depending on gameState.
 
@@ -29,5 +23,32 @@ a synchronous block, only one final change gets triggered (P1)(see the impact/co
 
 - Instead of marking only the overlaping cell as red, mark the whole preview as red
 
+- Expand StatsManager to:
+show msgs ("All clear!", "3 in a row!", "4 in a row!" etc) when needed
+(curate the idea, check if to hand it over to a new Manager class)
+
+
+
+- do not directly export instance of gameManager, instead use getInstance(...) on GameManager (for now singleton, 
+but will be easy to extend). Make gameManager import/usage consistent according to this.
+
+- UndoAbility to be done
+
+
+
+---- DONE ----
+
 - Add AbilityManager (manager) and Ability (base entity). With abilities like:- ColorClearAbility, UndoAbility etc
     - Check if it requires us to introduce a new folder, or works with manager-entity-ui architecture.
+
+- make processDrop, processRemoveBlocks (now both combined), etc (gameboard processing methods) as async methods (this allows
+them to handle their own delays in much easier way and produce a final result, lets say a score update, after
+everything is done).
+
+- Add StatsManager (holds stats data that even powers the activation of abilities) move score into it.
+
+- Think of moving the drag/drop handlers to DropManager (P1) (create DragDropService instead, which isn't owned by gameManager)
+    - Not doing it currently, because this introduces additional work/planning/approach of recreating/updating 
+    worklets (to update selectedShape and cell) everytime any dependencies (occupancyMatrix, blockSize, boardAnimatedRef) changes.
+    Currently, the worklets are created within component, and hence they're automatically recreated everytime any dependencies change.
+    To avoid complexities initially, let's go ahead the way it is. Later this needs to be revamped wrt better architecture.

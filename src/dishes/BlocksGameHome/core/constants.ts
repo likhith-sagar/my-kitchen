@@ -45,3 +45,9 @@ export const BlockProperties: {[key in BlockType]: IBlockProperties} = {
     imageSource: ASSETS_IMAGES.blueBlock,
   },
 };
+
+export enum StatsUpdateType {
+  ADD_BLOCKS_REGULAR_FLOW = 'ADD_BLOCKS_REGULAR_FLOW',
+  REMOVE_BLOCKS_REGULAR_FLOW = 'REMOVE_BLOCKS_REGULAR_FLOW',
+  REMOVE_BLOCKS_ABILITY_FLOW = 'REMOVE_BLOCKS_ABILITY_FLOW',
+}

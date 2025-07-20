@@ -1,6 +1,6 @@
 import React, {useCallback} from 'react';
 import gameManager from '../core/managers/GameManager';
-import {StyleSheet, View} from 'react-native';
+import {StyleSheet, TouchableOpacity, View} from 'react-native';
 import {SpecialAbilityType} from '../core/constants';
 import ColorClearAbility from './ColorClearAbility';
 import {normalize} from '../../../utils';
@@ -18,11 +18,14 @@ const AbilityList: React.FC<IAbilityListProps> = () => {
         case SpecialAbilityType.COLOR_CLEAR_BLUE:
         case SpecialAbilityType.COLOR_CLEAR_YELLOW:
           return (
-            <ColorClearAbility
+            <TouchableOpacity
               key={ability}
-              ability={specialAbilityManager.getAbility(ability)}
-              abilityType={ability}
-            />
+              activeOpacity={0.7}
+              onPress={() => gameManager.processAbility(ability)}>
+              <ColorClearAbility
+                ability={specialAbilityManager.getAbility(ability)}
+              />
+            </TouchableOpacity>
           );
 
         default:
@@ -34,7 +37,7 @@ const AbilityList: React.FC<IAbilityListProps> = () => {
 
   return (
     <View style={styles.container}>
-      {abilityList.map(ability => renderAbility(ability))};
+      {abilityList.map(ability => renderAbility(ability))}
     </View>
   );
 };

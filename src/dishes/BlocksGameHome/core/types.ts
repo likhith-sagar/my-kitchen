@@ -1,5 +1,5 @@
 import {SharedValue} from 'react-native-reanimated';
-import {BlockType} from './constants';
+import {BlockType, SpecialAbilityType, StatsUpdateType} from './constants';
 
 // TODO: follow the convention of types/interfaces to start with I
 
@@ -14,13 +14,6 @@ export type PositionInMatrix = {
   row: number;
   col: number;
 };
-
-// TODO: Remove this interface
-export interface UIBinder<T> {
-  getData: () => T;
-  addChangeListener: (listener: (data: T) => void) => void;
-  removeChangeListener: () => void;
-}
 
 export type Shape = number[][];
 
@@ -43,11 +36,6 @@ export type BoardConfig = {
   numCols: number;
 };
 
-export type GameConfig = {
-  scorePerBlock: number; // TODO: remove (unused mostly)
-  // TODO: Add more game config
-};
-
 export type BlockSetManagerConfig = {
   maxBlockSets: number;
   blockSize: number;
@@ -58,12 +46,15 @@ export type IBlockProperties = {
   points: number;
 };
 
-export type IContextForUpdateAbilities = {
-  // add fields as needed
-  blocksAddedTillNow: {
-    [key in BlockType]: number;
-  };
-  blocksDestroyedTillNow: {
-    [key in BlockType]: number;
-  };
+export type IBlockTypeMap<V> = {
+  [key in BlockType]: V;
+};
+
+export type IStatsUpdateData = {
+  updateType: StatsUpdateType;
+  blocksAddedCount?: Partial<IBlockTypeMap<number>>;
+  blocksRemovedCount?: Partial<IBlockTypeMap<number>>;
+  specialAbilityUsed?: SpecialAbilityType;
+  clearedRowsCount?: number;
+  // add as needed
 };

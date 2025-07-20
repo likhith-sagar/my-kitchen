@@ -1,11 +1,16 @@
 import {AnimatedRef} from 'react-native-reanimated';
+import {delay} from '../../../../utils';
 import {UIBinder} from '../base/UIBinder';
+import {BlockType, StatsUpdateType} from '../constants';
 import Block from '../entities/Block';
-import {BoardConfig} from '../types';
-import {BlockProperties, BlockType} from '../constants';
 import {BlockSet} from '../entities/BlockSet';
+import {BoardConfig, IBlockTypeMap} from '../types';
+import gameManager from './GameManager';
 
 const BLOCK_EXIT_DELAY_DELTA = 30;
+
+const WAIT_TIME_TO_SETTLE_NEWLY_ADDED_BLOCKS = 500;
+const WAIT_TIME_TO_LET_THE_ROW_CLEAR = 500;
 
 type IBoardManagerData = {
   matrix: (Block | null)[][];
@@ -72,12 +77,19 @@ export class BoardManager extends UIBinder<IBoardManagerData> {
     this.notifyChange();
   }
 
-  // TODO: rename
-  updateBoard(
+  // primary apis -->
+
+  async processDrop(
     blockSet: BlockSet,
     pivot: [number, number],
     dropCell: [number, number],
   ) {
+    const blocksAddedCount: Partial<IBlockTypeMap<number>> = {};
+    const blocksRemovedCount: Partial<IBlockTypeMap<number>> = {};
+    let clearedRowsCount = 0;
+
+    /// step-1 - start
+    let matrix = [...this.data.matrix]; // new reference (shallow copy)
     const shape = blockSet.getData().shapeMeta.trimmedShape;
 
     // TODO: update the board (matrix)
@@ -86,9 +98,7 @@ export class BoardManager extends UIBinder<IBoardManagerData> {
     const startCol = dropCell[0] - pivot[0];
     const endCol = startCol + shape[0].length - 1; // endCol inclusive
 
-    let pointsByBlocksAdded = 0;
-
-    const matrix = [...this.data.matrix]; // new reference (shallow copy)
+    const blockType = blockSet.getData().blockType;
 
     // done this way to create new reference for affected rows
     for (let row = startRow; row <= endRow; row++) {
@@ -97,13 +107,9 @@ export class BoardManager extends UIBinder<IBoardManagerData> {
           const shapeRow = row - startRow;
           const shapeCol = col - startCol;
           if (shape?.[shapeRow]?.[shapeCol] === 1 && !cell) {
-            const newBlock = this.getNewBlock(
-              col,
-              row,
-              blockSet.getData().blockType,
-            );
-            pointsByBlocksAdded +=
-              BlockProperties[newBlock.getData().blockType].points;
+            const newBlock = this.getNewBlock(col, row, blockType);
+            blocksAddedCount[blockType] =
+              (blocksAddedCount[blockType] || 0) + 1;
             return newBlock;
           }
           return cell;
@@ -112,53 +118,73 @@ export class BoardManager extends UIBinder<IBoardManagerData> {
       });
     }
 
-    // TODO: process the removal of blocks
-    // TODO: process final movement of blocks
-    // NOTE: decide whether to do all these here, or have the separate functions for each
-    // and then gameManager will call them
+    this.updateMatrix(matrix); // updates UI
+    gameManager.getStatsManager().updateStats({
+      updateType: StatsUpdateType.ADD_BLOCKS_REGULAR_FLOW,
+      blocksAddedCount,
+    });
+    /// step-1 - end
 
-    this.updateMatrix(matrix);
-
-    return {
-      points: pointsByBlocksAdded,
-    };
-  }
-
-  processRemoveBlocks() {
-    // TODO: process the removal of blocks
-    let pointsByBlocksRemoved = 0;
-
-    const matrix = [...this.data.matrix]; // new reference (shallow copy)
-
+    /// step-2 - start
     const removedRowSet = new Set<number>();
 
-    matrix.forEach((row, rowIndex) => {
+    // map creates a new reference, so no need to shallow copy
+    matrix = matrix.map((row, rowIndex) => {
       const isRowFull = row.every(cell => cell !== null);
 
       if (isRowFull) {
         // clear the row
-        for (let i = 0; i < row.length; i++) {
-          const block = row[i];
-          pointsByBlocksRemoved +=
-            BlockProperties[block.getData().blockType].points;
+        row.forEach(block => {
+          const blockType = block.getData().blockType;
+          blocksRemovedCount[blockType] =
+            (blocksRemovedCount[blockType] || 0) + 1;
           block.destroy();
-          (row[i] as null | Block) = null;
-        }
+        });
         removedRowSet.add(rowIndex);
+        clearedRowsCount++;
+        return new Array(row.length).fill(null);
       }
+      return row;
     });
-    processMatrixPostRemove(matrix, removedRowSet); // inplace
-    this.updateMatrix(matrix);
 
-    matrix.forEach((row, rowIndex) =>
-      row.forEach((block, colIndex) =>
-        block?.animateToPosition({row: rowIndex, col: colIndex}),
-      ),
+    if (clearedRowsCount) {
+      await delay(WAIT_TIME_TO_SETTLE_NEWLY_ADDED_BLOCKS); // wait for newly added blocks to settle
+
+      processMatrixPostRemove(matrix, removedRowSet); // inplace
+      this.updateMatrix(matrix); // updates UI
+
+      await delay(WAIT_TIME_TO_LET_THE_ROW_CLEAR); // wait for the row to clear (animation)
+
+      matrix.forEach((row, rowIndex) =>
+        row.forEach((block, colIndex) =>
+          block?.animateToPosition({row: rowIndex, col: colIndex}),
+        ),
+      );
+      gameManager.getStatsManager().updateStats({
+        updateType: StatsUpdateType.REMOVE_BLOCKS_REGULAR_FLOW,
+        blocksRemovedCount,
+        clearedRowsCount,
+      });
+    }
+    /// step-2 - end
+  }
+
+  // secondary apis -->
+
+  removeAllBlocksOfType(blockType: BlockType) {
+    let clearCount = 0;
+    const processedMatrix = this.data.matrix.map(row =>
+      row.map(block => {
+        if (block && block.getData().blockType === blockType) {
+          block.destroy();
+          clearCount++;
+          return null;
+        }
+        return block;
+      }),
     );
-
-    return {
-      points: pointsByBlocksRemoved,
-    };
+    this.updateMatrix(processedMatrix);
+    return clearCount;
   }
 }
 
