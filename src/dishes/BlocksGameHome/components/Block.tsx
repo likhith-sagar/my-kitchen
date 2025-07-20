@@ -5,7 +5,7 @@ import Animated, {
   SlideInUp,
   useAnimatedStyle,
 } from 'react-native-reanimated';
-import {normalize} from '../../../utils';
+import {normalize, SCREEN_HEIGHT} from '../../../utils';
 import {BlockProperties, ZIndex} from '../core/constants';
 import BlockEntity from '../core/entities/Block';
 import {useUIBinder} from '../hooks/useUIBinder';
@@ -18,6 +18,11 @@ export const Block: React.FC<BlockProps> = ({block}) => {
   const {blockType, size, position, exitDelay} = useUIBinder(block);
 
   const blockImageSource = BlockProperties[blockType].imageSource;
+
+  const slideInAnimation = useMemo(
+    () => SlideInUp.withInitialValues({originY: -SCREEN_HEIGHT}).build(),
+    [],
+  );
 
   const staticStyles = useMemo(() => {
     return {
@@ -39,7 +44,7 @@ export const Block: React.FC<BlockProps> = ({block}) => {
     <Animated.View style={[styles.blockContainer, animatedStyles]}>
       <Animated.View
         style={[styles.block, staticStyles]}
-        entering={SlideInUp}
+        entering={slideInAnimation}
         exiting={FadeOut.delay(exitDelay)}>
         <Image
           source={blockImageSource}
