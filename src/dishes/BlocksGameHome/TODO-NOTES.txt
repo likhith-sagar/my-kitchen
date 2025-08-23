@@ -18,8 +18,6 @@
     
 - Instead of all blocks having a same border color, add a separate border colors according to their colors
 
-- Instead of marking only the overlaping cell as red, mark the whole preview as red
-
 - Expand StatsManager to:
 show msgs ("All clear!", "3 in a row!", "4 in a row!" etc) when needed
 (curate the idea, check if to hand it over to a new Manager class)
@@ -54,3 +52,5 @@ everything is done).
 
 - Make notifyChange() async by using setTimeout/setImmediate (promise used), so let's say if multiple nofityChange() gets called in 
 a synchronous block, only one final change gets triggered (P1)(see the impact/consequences)
+
+- Instead of marking only the overlaping cell as red, mark the whole preview as red

@@ -11,6 +11,7 @@ type PreviewBlockProps = {
   blockSize: number;
   selectedShapeMetaSV: SelectedShapeMetaSV;
   currentDropCellSV: SharedValue<[number, number] | null>;
+  isInvalidDropSV: SharedValue<boolean>;
 };
 
 const PreviewBlock: React.FC<PreviewBlockProps> = ({
@@ -19,6 +20,7 @@ const PreviewBlock: React.FC<PreviewBlockProps> = ({
   blockSize,
   selectedShapeMetaSV,
   currentDropCellSV,
+  isInvalidDropSV,
 }) => {
   const staticStyles = useMemo(() => {
     return {
@@ -30,10 +32,7 @@ const PreviewBlock: React.FC<PreviewBlockProps> = ({
   }, [blockSize, col, row]);
 
   const animatedStyles = useAnimatedStyle(() => {
-    // TODO: rename variables to be more relevant
-
     let isCurrentDropCell = false;
-    let isDropCellOccupied = false;
 
     if (selectedShapeMetaSV.value && currentDropCellSV.value) {
       const rowRelativeToDropCell = row - currentDropCellSV.value[1];
@@ -48,15 +47,13 @@ const PreviewBlock: React.FC<PreviewBlockProps> = ({
         selectedShapeMetaSV.value.shape?.[transposedRowOnSelectedShape]?.[
           transposedColOnSelectedShape
         ] === 1;
-      const occupancyMatrix = global.occupancyMatrix;
-      isDropCellOccupied = occupancyMatrix[row][col];
     }
 
     return {
       opacity: isCurrentDropCell ? 1 : 0,
-      backgroundColor: isDropCellOccupied ? '#88000055' : '#BEDABE',
+      backgroundColor: isInvalidDropSV.value ? '#AA000044' : '#BEDABE',
       borderWidth: 0.5,
-      borderColor: isDropCellOccupied ? '#880000' : '#008800',
+      borderColor: isInvalidDropSV.value ? '#880000' : '#008800',
     };
   });
 

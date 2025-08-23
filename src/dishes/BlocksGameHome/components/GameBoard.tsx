@@ -1,16 +1,11 @@
 import React, {useEffect, useMemo} from 'react';
-import {View, StyleSheet} from 'react-native';
+import {StyleSheet, View} from 'react-native';
+import Animated, {useAnimatedRef} from 'react-native-reanimated';
+import {normalize} from '../../../utils';
 import {BoardManager} from '../core/managers/BoardManager';
 import {useUIBinder} from '../hooks/useUIBinder';
-import {normalize} from '../../../utils';
-import PreviewBlock from './PreviewBlock';
-import Animated, {
-  runOnJS,
-  runOnUI,
-  useAnimatedRef,
-} from 'react-native-reanimated';
-import gameManager from '../core/managers/GameManager';
 import {Block} from './Block';
+import PreviewGrid from './PreviewGrid';
 
 type GameBoardProps = {
   boardManager: BoardManager;
@@ -20,19 +15,14 @@ export const GameBoard: React.FC<GameBoardProps> = ({boardManager}) => {
   const animatedRef = useAnimatedRef<Animated.View>();
 
   useEffect(() => {
-    console.log('LLLL SETTING BOARD ANIMATED REF');
     boardManager.setBoardAnimatedRef(animatedRef);
   }, [boardManager, animatedRef]);
 
-  const {boardHeight, boardWidth, matrix, blockSize, occupancyMatrix} =
+  const {boardHeight, boardWidth, matrix, blockSize} =
     useUIBinder(boardManager);
 
   const numRows = matrix.length;
   const numCols = matrix[0].length;
-
-  const {selectedShapeMetaSV, currentDropCellSV} = useUIBinder(
-    gameManager.getDropManager(),
-  );
 
   const boardStyle = useMemo(() => {
     return {
@@ -41,16 +31,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({boardManager}) => {
     };
   }, [boardWidth, boardHeight]);
 
-  useEffect(() => {
-    const setOccupancyMatrix = () => {
-      'worklet';
-      global.occupancyMatrix = occupancyMatrix;
-    };
-    runOnUI(setOccupancyMatrix)();
-  }, [occupancyMatrix]);
-
   const backgroundGridJSX = useMemo(() => {
-    console.log('LLLL RENDER BACKGROUND GRID');
     const gridCellSize = blockSize;
     const gridCellSizeStyle = {
       width: gridCellSize,
@@ -77,26 +58,6 @@ export const GameBoard: React.FC<GameBoardProps> = ({boardManager}) => {
     return elements;
   }, [numRows, numCols, blockSize]);
 
-  const previewGridJSX = useMemo(() => {
-    console.log('LLLL RENDER PREVIEW GRID');
-    const previewBlocks = [];
-    // not using matrix directly as matrix keeps changing
-    for (let rowIndex = 0; rowIndex < numRows; rowIndex++) {
-      for (let colIndex = 0; colIndex < numCols; colIndex++) {
-        previewBlocks.push(
-          <PreviewBlock
-            key={`${rowIndex}-${colIndex}`}
-            row={rowIndex}
-            col={colIndex}
-            blockSize={blockSize}
-            selectedShapeMetaSV={selectedShapeMetaSV}
-            currentDropCellSV={currentDropCellSV}
-          />,
-        );
-      }
-    }
-    return previewBlocks;
-  }, [numRows, numCols, blockSize, selectedShapeMetaSV, currentDropCellSV]);
 
   const blocksJSX = useMemo(() => {
     const blocks: React.JSX.Element[] = [];
@@ -117,7 +78,7 @@ export const GameBoard: React.FC<GameBoardProps> = ({boardManager}) => {
         style={[styles.boardContainer, boardStyle]}
         ref={animatedRef}>
         {backgroundGridJSX}
-        {previewGridJSX}
+        <PreviewGrid />
         {blocksJSX}
       </Animated.View>
     </View>
